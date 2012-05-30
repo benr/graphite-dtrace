@@ -1,0 +1,18 @@
+#!/usr/perl5/bin/perl
+
+my @MYSQL_PS = `ps -e -o zone,pid,args | grep mysqld | grep -v safe | grep -v grep | grep -v dump`;
+
+foreach $i (@MYSQL_PS) {
+	chomp($i);
+	my ($ZONE, $PID, $PROC) = split(/\s+/, $i);
+ 	print("Found MySQL PID $PID running in Zone $ZONE\n");
+
+	if (my $WORKER = fork() ) {
+		print("Forked off $WORKER for $PID in $ZONE\n");
+		exec("./mysql.d/mysql_pid_avg.d -p $PID | ./mysql.d/graphite-mysqlpid-assist.pl $ZONE");
+	}
+
+}
+
+
+

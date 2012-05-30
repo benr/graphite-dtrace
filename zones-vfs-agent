@@ -1,0 +1,14 @@
+#!/usr/perl5/bin/perl
+#
+# Control script for Per-Zone VFS Latency Graphite Metrics
+# <benr@joyent.com> 8/15/11
+
+
+@SCRIPTS = ('read','write');
+
+foreach $i (@SCRIPTS) {
+	if (my $WORKER = fork()) {
+		print("Forking of PID $WORKER for $i I/O\n");			
+		exec("./zones-vfs.d/zones-vfs-latency-${i}.d | ./zones-vfs.d/graphite-zoneaggr-assist.pl ${i}");
+	}
+}
